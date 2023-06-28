@@ -1,0 +1,55 @@
+{
+  "name": "23-06-27-test-graphql-defer",
+  "type": "module",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "lint": "quilt lint",
+    "test": "quilt test",
+    "type-check": "quilt type-check",
+    "develop": "quilt develop",
+    "build": "quilt build",
+    "start": "node ./build/server/server.js"
+  },
+  "devDependencies": {
+    "@graphql-yoga/plugin-defer-stream": "^2.0.2",
+    "@quilted/browserslist-config": "^0.1.9",
+    "@quilted/craft": "^0.1.208",
+    "@quilted/eslint-config": "^0.1.17",
+    "@quilted/graphql": "^0.4.61",
+    "@quilted/prettier": "^0.2.11",
+    "@quilted/quilt": "^0.5.140",
+    "@quilted/stylelint-config": "^0.1.0",
+    "@quilted/typescript": "^0.2.19",
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
+    "graphql": "^16.7.1",
+    "graphql-yoga": "^4.0.2",
+    "preact": "^10.14.0",
+    "react": "npm:@quilted/react@^18.2.0",
+    "react-dom": "npm:@quilted/react-dom@^18.2.0",
+    "typescript": "^5.0.0"
+  },
+  "sideEffects": [
+    "*.css",
+    "browser.tsx"
+  ],
+  "browserslist": {
+    "defaults": [
+      "extends @quilted/browserslist-config/defaults"
+    ],
+    "modules": [
+      "extends @quilted/browserslist-config/modules"
+    ],
+    "evergreen": [
+      "extends @quilted/browserslist-config/evergreen"
+    ]
+  },
+  "eslintConfig": {
+    "extends": "@quilted/eslint-config/app"
+  },
+  "prettier": "@quilted/prettier",
+  "stylelint": {
+    "extends": "@quilted/stylelint-config"
+  }
+}
