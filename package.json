@@ -16,7 +16,7 @@
     "@quilted/browserslist-config": "^0.1.9",
     "@quilted/craft": "^0.1.208",
     "@quilted/eslint-config": "^0.1.17",
-    "@quilted/graphql": "^0.4.61",
+    "@quilted/graphql": "^0.5.1",
     "@quilted/prettier": "^0.2.11",
     "@quilted/quilt": "^0.5.140",
     "@quilted/stylelint-config": "^0.1.0",

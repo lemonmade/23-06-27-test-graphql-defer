@@ -46,15 +46,9 @@ router.post('/graphql', (request) => yoga.fetch(request));
 
 // For all GET requests, render our React application.
 router.get(
-  createServerRender(
-    async () => {
-      const {default: App} = await import('./App.tsx');
-      return <App />;
-    },
-    {
-      assets: createBrowserAssets(),
-    },
-  ),
+  createServerRender(async () => <></>, {
+    assets: createBrowserAssets(),
+  }),
 );
 
 export default router;

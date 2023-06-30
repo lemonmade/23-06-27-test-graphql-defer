@@ -1,22 +1,25 @@
 import type {GraphQLError} from 'graphql';
 import type {
+  GraphQLOperation,
   GraphQLAnyOperation,
   GraphQLVariableOptions,
 } from '@quilted/graphql';
 
-export interface GraphQLHttpFetchOptions
+export interface GraphQLHttpStreamingFetchOptions
   extends Pick<RequestInit, 'credentials'> {
-  url: string | URL;
+  url: string | URL | ((request: GraphQLOperation) => string | URL);
   headers?: Record<string, string> | ((headers: Headers) => Headers | void);
   customizeRequest?(request: Request): Request | Promise<Request>;
 }
 
-export function createGraphQLHttpFetch({
+const STREAMING_OPERATION_REGEX = /@(stream|defer)\b/i;
+
+export function createGraphQLHttpStreamingFetch({
   url,
   credentials,
   headers: explicitHeaders,
   customizeRequest,
-}: GraphQLHttpFetchOptions) {
+}: GraphQLHttpStreamingFetchOptions) {
   return async function* fetchGraphQL<Data, Variables>(
     operation: GraphQLAnyOperation<Data, Variables>,
     options?: GraphQLVariableOptions<Variables> & {signal?: AbortSignal},
@@ -42,11 +45,14 @@ export function createGraphQLHttpFetch({
       operationName = operation.name;
     }
 
-    const resolvedUrl = url;
+    const resolvedUrl =
+      typeof url === 'function' ? url({id, source, name: operationName}) : url;
+
+    const looksLikeStreaming = STREAMING_OPERATION_REGEX.test(source);
 
     let headers = new Headers({
       'Content-Type': 'application/json',
-      Accept: 'application/json',
+      Accept: looksLikeStreaming ? 'multipart/mixed' : 'application/json',
     });
 
     if (typeof explicitHeaders === 'function') {
@@ -79,14 +85,18 @@ export function createGraphQLHttpFetch({
       return {
         errors: [
           {
-            response,
             message: `GraphQL fetch failed with status: ${
               response.status
             }, response: ${await response.text()}`,
           },
         ],
-      };
+      } satisfies ExecutionResult;
     }
+
+    // const contentType = response.headers.get('Content-Type') ?? '';
+
+    // if (/multipart[/]mixed/i.test(contentType)) {
+    // }
 
     for await (const payload of parseMultipartMixed(response)) {
       yield payload;
@@ -103,7 +113,7 @@ const HEADER_SEPARATOR = NEWLINE_SEPARATOR + NEWLINE_SEPARATOR;
 
 async function* parseMultipartMixed(
   response: Response,
-): AsyncIterableIterator<any> {
+): AsyncIterableIterator<ExecutionResult> {
   const boundaryHeader = (response.headers.get('Content-Type') ?? '').match(
     BOUNDARY_HEADER_REGEX,
   );
@@ -162,7 +172,6 @@ async function* streamResponseBody(
 
     try {
       while (!(result = await reader.read()).done) {
-        console.log(decoder.decode(result.value));
         yield decoder.decode(result.value);
       }
     } finally {
@@ -238,6 +247,8 @@ function mergeResultPatch(
   }
 
   if (incremental) {
+    result.incremental = incremental;
+
     for (const patch of incremental) {
       if (Array.isArray(patch.errors)) {
         result.errors ??= [];
@@ -273,6 +284,7 @@ function mergeResultPatch(
   } else {
     result.data = nextResult.data || result.data;
     result.errors = nextResult.errors || result.errors;
+    result.incremental = nextResult.incremental;
   }
 
   if (nextResult.extensions) {
@@ -281,8 +293,6 @@ function mergeResultPatch(
   }
 
   result.hasNext = nextResult.hasNext ?? result.hasNext;
-
-  console.log(result);
 
   return result;
 }
