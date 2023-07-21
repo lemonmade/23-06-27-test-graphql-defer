@@ -11,24 +11,25 @@
     "build": "quilt build",
     "start": "node ./build/server/server.js"
   },
+  "packageManager": "pnpm@8.5.0",
   "devDependencies": {
     "@graphql-yoga/plugin-defer-stream": "^2.0.2",
     "@quilted/browserslist-config": "^0.1.9",
-    "@quilted/craft": "^0.1.208",
+    "@quilted/craft": "^0.1.221",
     "@quilted/eslint-config": "^0.1.17",
-    "@quilted/graphql": "^0.5.1",
+    "@quilted/graphql": "^1.1.0",
     "@quilted/prettier": "^0.2.11",
-    "@quilted/quilt": "^0.5.140",
+    "@quilted/quilt": "^0.5.147",
     "@quilted/stylelint-config": "^0.1.0",
-    "@quilted/typescript": "^0.2.19",
+    "@quilted/typescript": "^0.2.20",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
     "graphql": "^16.7.1",
     "graphql-yoga": "^4.0.2",
-    "preact": "^10.14.0",
+    "preact": "^10.16.0",
     "react": "npm:@quilted/react@^18.2.0",
     "react-dom": "npm:@quilted/react-dom@^18.2.0",
-    "typescript": "^5.0.0"
+    "typescript": "^5.1.6"
   },
   "sideEffects": [
     "*.css",

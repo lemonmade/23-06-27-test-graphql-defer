@@ -1,4 +1,4 @@
-import {createGraphQLHttpStreamingFetch} from './graphql-fetch.ts';
+import {createGraphQLHttpStreamingFetch} from '@quilted/graphql';
 
 document.body.innerHTML = `
   <h1>Stream</h1>
@@ -25,12 +25,12 @@ const query = gql`
       }
     }
     ... on Query @defer {
-      slowerHello: slowHello(wait: 3000)
+      slowestHello: slowHello(wait: 4000)
     }
   }
 
   fragment PersonFragment on Person {
-    slowHello(wait: 2000)
+    slowerHello: slowHello(wait: 2000)
   }
 `;
 
@@ -38,9 +38,22 @@ let currentAbort = new AbortController();
 
 async function run() {
   output.textContent = '';
+  let lastUpdate = Date.now();
+  let updateCount = 0;
 
-  for await (const result of fetch(query, {signal: currentAbort.signal})) {
-    output.textContent = JSON.stringify(result, null, 2);
+  const fetched = fetch(query, {signal: currentAbort.signal});
+
+  for await (const result of fetched) {
+    const now = Date.now();
+    updateCount += 1;
+
+    output.textContent = JSON.stringify(
+      {...result, updates: updateCount, delay: now - lastUpdate},
+      null,
+      2,
+    );
+
+    lastUpdate = now;
   }
 }
 
